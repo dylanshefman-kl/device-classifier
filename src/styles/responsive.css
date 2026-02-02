@@ -1,0 +1,28 @@
+@media (max-width: 900px) {
+  .appShell {
+    grid-template-columns: 1fr;
+    grid-template-rows: 2fr 1fr 1fr;
+  }
+
+  .graphPane {
+    grid-row: auto;
+  }
+
+  .sidebarPane {
+    grid-row: auto;
+  }
+
+  .devicesPane {
+    grid-row: auto;
+  }
+}
+
+/* Hidden nodes overlay list should scroll, not compress (override .deviceList grid) */
+.hiddenOverlayBody.deviceList {
+  display: flex;
+  flex-direction: column;
+}
+
+.hiddenOverlayBody.deviceList > .deviceItem {
+  flex: 0 0 auto;
+}

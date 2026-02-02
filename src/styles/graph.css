@@ -1,0 +1,600 @@
+.graphWrapper {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.graphHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(15, 26, 46, 0.6);
+}
+
+.graphControls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.graphIconButton {
+  height: 34px;
+  width: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+}
+
+.graphIconButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.graphIconButton:active {
+  transform: translateY(1px);
+}
+
+.graphIconButton:focus-visible {
+  outline: 2px solid rgba(60, 140, 255, 0.9);
+  outline-offset: 2px;
+}
+
+/* Help / Instructions modal */
+.helpPanel {
+  max-width: 760px;
+}
+
+.helpSteps {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.helpStep {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 12px 12px;
+}
+
+.helpStepTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.94);
+  margin-bottom: 6px;
+}
+
+.helpStepText {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.80);
+  line-height: 1.35;
+}
+
+.helpStepNote {
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.35;
+}
+
+.helpSectionTitle {
+  margin: 14px 0 10px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.86);
+  letter-spacing: 0.01em;
+}
+
+.helpTools {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.helpTool {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 12px 12px;
+}
+
+.helpTool.placeholder {
+  opacity: 0.7;
+}
+
+.helpToolTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.94);
+  margin-bottom: 6px;
+}
+
+.helpToolText {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.80);
+  line-height: 1.35;
+}
+
+.helpToolLine {
+  display: block;
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.helpHero {
+  position: relative;
+  height: 124px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: radial-gradient(120% 160% at 20% 10%, rgba(60, 140, 255, 0.20), rgba(0, 0, 0, 0)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.helpHeroPane {
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.helpHeroPane.graph {
+  left: 14px;
+  width: 56%;
+}
+
+.helpHeroPane.rightTop {
+  right: 14px;
+  width: 34%;
+  height: 40%;
+  top: 14px;
+  bottom: auto;
+}
+
+.helpHeroPane.rightBottom {
+  right: 14px;
+  width: 34%;
+  height: 48%;
+  bottom: 14px;
+  top: auto;
+}
+
+.helpHeroGutter {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.helpHeroGutter.vertical {
+  top: 14px;
+  bottom: 14px;
+  left: calc(14px + 56% + 8px);
+  width: 2px;
+}
+
+.helpHeroGutter.horizontal {
+  right: 14px;
+  left: calc(14px + 56% + 18px);
+  top: 60px;
+  height: 2px;
+}
+
+.helpGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 740px) {
+  .helpGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.helpCard {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 12px 12px;
+}
+
+.helpCardHeader {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.helpCardTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.94);
+  margin-bottom: 4px;
+}
+
+.helpCardText {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.80);
+  line-height: 1.35;
+}
+
+.helpCardNote {
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.35;
+}
+
+.helpIcon {
+  height: 28px;
+  width: 28px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.22);
+  flex: 0 0 auto;
+  position: relative;
+}
+
+.helpIcon::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.helpIcon.upload::after {
+  background: rgba(60, 140, 255, 0.42);
+}
+
+.helpIcon.select::after {
+  background: rgba(100, 210, 255, 0.36);
+}
+
+.helpIcon.device::after {
+  background: rgba(255, 200, 60, 0.38);
+}
+
+.helpIcon.clean::after {
+  background: rgba(255, 90, 90, 0.40);
+}
+
+.helpIcon.resize::after {
+  background: rgba(170, 130, 255, 0.38);
+}
+
+.helpIcon.export::after {
+  background: rgba(31, 157, 85, 0.44);
+}
+
+.kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.graphButtonGroupRight {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.graphButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: rgba(96, 165, 250, 0.14);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+  user-select: none;
+}
+
+.graphButton:hover {
+  background: rgba(96, 165, 250, 0.22);
+}
+
+.graphButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.graphButton.success {
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(52, 211, 153, 0.18);
+}
+
+.graphButton.success:hover {
+  background: rgba(52, 211, 153, 0.26);
+}
+
+.fileButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: rgba(96, 165, 250, 0.14);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+  user-select: none;
+}
+
+.fileButton:hover {
+  background: rgba(96, 165, 250, 0.22);
+}
+
+.fileButton input {
+  display: none;
+}
+
+.graphSelect {
+  min-width: 220px;
+  max-width: 420px;
+  padding: 10px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  outline: none;
+}
+
+.graphSelect:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.graphSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: rgba(12, 22, 40, 0.6);
+}
+
+.graphBody {
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  position: relative;
+}
+
+.graphJumpFloating {
+  position: absolute;
+  left: calc(var(--minimapW, 120px) + 12px);
+  bottom: 12px;
+  z-index: 5;
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+.hiddenOverlay {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 6;
+  width: min(420px, calc(100% - 24px));
+  height: 48px; /* collapsed size */
+  max-height: 48px;
+  --hiddenOverlayMaxH: 48px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(15, 26, 46, 0.92), rgba(12, 22, 40, 0.82));
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: height 160ms ease;
+}
+
+.hiddenOverlay.expanded {
+  --hiddenOverlayMaxH: clamp(220px, 38vh, 560px);
+  height: auto;
+  max-height: var(--hiddenOverlayMaxH);
+}
+
+.hiddenOverlayHeader {
+  flex: 0 0 auto;
+  min-height: 48px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hiddenOverlayTitleRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.hiddenOverlayTitle {
+  font-weight: 600;
+  line-height: 1;
+}
+
+.hiddenOverlayCount {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.70);
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  line-height: 16px;
+}
+
+.hiddenOverlayActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.hiddenOverlayToggle {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 6px;
+  margin: -2px;
+  border-radius: 8px;
+  cursor: pointer;
+  line-height: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hiddenOverlayToggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.hiddenOverlayBody {
+  /* The list is the body: grow to content until max, then scroll */
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  max-height: calc(var(--hiddenOverlayMaxH) - 48px);
+  padding: 10px;
+  padding-right: 12px;
+}
+
+.hiddenOverlayEmpty {
+  overflow: auto;
+  max-height: calc(var(--hiddenOverlayMaxH) - 48px);
+  padding: 10px;
+  padding-right: 12px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.hiddenOverlayHint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Hidden nodes overlay: keep select-all row squared at the top edge */
+.hiddenOverlayBody .deviceItem.deviceSelectAllItem:first-child {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+
+.minimapPane {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: rgba(12, 22, 40, 0.6);
+}
+
+.minimapMap {
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.minimapSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: transparent;
+  cursor: pointer;
+  overflow: visible;
+}
+
+.minimapViewport {
+  pointer-events: none;
+}
+
+.minimapDeviceBars {
+  pointer-events: none;
+}
+
+.minimapStats {
+  flex: 0 0 auto;
+  padding: 10px 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 26, 46, 0.75);
+  display: grid;
+  gap: 10px;
+}
+
+.minimapStatsEmpty {
+  min-height: 62px;
+}
+
+.miniStatBlock {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.miniStatLabel {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 11px;
+  letter-spacing: 0.2px;
+}
+
+.miniStatValue {
+  color: rgba(255, 255, 255, 0.88);
+  font-weight: 750;
+  font-size: 13px;
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.miniButton {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: rgba(96, 165, 250, 0.14);
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.miniStatBlock .miniButton {
+  margin-top: 4px;
+}
+
+.miniButton:hover {
+  background: rgba(96, 165, 250, 0.22);
+}
+
+.miniButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

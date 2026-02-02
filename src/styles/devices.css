@@ -1,0 +1,292 @@
+.devicesPane {
+  min-width: 0;
+  grid-column: 3;
+  grid-row: 3;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.devicesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  flex: 0 0 auto;
+  min-height: 40px;
+}
+
+.devicesHeaderActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.devicesListArea {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.devicesTitle {
+  font-weight: 600;
+}
+
+.devicesTitleRow {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.devicesCount {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.70);
+}
+
+.devicesHeaderButton {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  line-height: 1;
+  font-size: 14px;
+}
+
+.sidebarFooterActions .devicesHeaderButton.sidebarMergeButton {
+  height: 40px;
+  width: 40px;
+}
+
+.sidebarFooterActions .devicesHeaderButton.sidebarPruneButton {
+  height: 40px;
+  width: 40px;
+}
+
+.devicesHeaderButton > svg {
+  display: block;
+}
+
+.devicesHeaderButton:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.devicesHeaderButton.merge:not(:disabled):not(.disabled) {
+  border-color: rgba(255, 77, 184, 0.38);
+  background: rgba(255, 77, 184, 0.10);
+  color: rgba(255, 175, 220, 0.95);
+}
+
+.devicesHeaderButton.merge:not(:disabled):not(.disabled):hover {
+  background: rgba(255, 77, 184, 0.14);
+}
+
+.devicesHeaderButton.prune:not(:disabled):not(.disabled) {
+  border-color: rgba(245, 158, 11, 0.55);
+  background: rgba(245, 158, 11, 0.14);
+  color: rgba(255, 240, 210, 0.95);
+}
+
+.devicesHeaderButton.prune:not(:disabled):not(.disabled):hover {
+  background: rgba(245, 158, 11, 0.20);
+}
+
+.devicesHeaderButton.danger {
+  border-color: rgba(239, 68, 68, 0.55);
+  background: rgba(239, 68, 68, 0.16);
+  color: rgba(255, 225, 225, 0.95);
+}
+
+.devicesHeaderButton.danger:hover {
+  background: rgba(239, 68, 68, 0.22);
+}
+
+.devicesHeaderButton:disabled,
+.devicesHeaderButton.disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.devicesHeaderButton.danger:disabled,
+.devicesHeaderButton.danger.disabled {
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.devicesHeaderButton.danger:disabled:hover,
+.devicesHeaderButton.danger.disabled:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.devicesHeaderButton.prune:disabled,
+.devicesHeaderButton.prune.disabled {
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.devicesHeaderButton.prune:disabled:hover,
+.devicesHeaderButton.prune.disabled:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.hiddenNodesSection {
+  flex: 0 0 auto;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.hiddenNodesSummary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.hiddenNodesSummary::-webkit-details-marker {
+  display: none;
+}
+
+.hiddenNodesSummaryLeft {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.hiddenNodesTitle {
+  font-weight: 600;
+}
+
+.hiddenNodesCount {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.70);
+}
+
+.hiddenNodesBody {
+  padding-top: 8px;
+}
+
+.hiddenNodesEmpty {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  padding: 6px 2px;
+}
+
+.hiddenNodesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+  max-height: 160px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.hiddenNodeItem {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hiddenNodeName {
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hiddenNodePath {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.62);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hiddenNodesHint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.deviceList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0px;
+}
+
+.deviceItem {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.deviceItem:not(:first-child) {
+  border-top: none;
+}
+
+.deviceItem:first-child {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.deviceItem:last-child {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.deviceSelectAllItem {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.selectAllRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+}
+
+.deviceSelectAllItem .deviceSelect {
+  height: 42px;
+}
+
+.selectAllMeta {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding-right: 10px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+}

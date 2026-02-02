@@ -1,0 +1,105 @@
+.appShell {
+  height: 100%;
+  display: grid;
+  --gutter-size: 12px;
+  grid-template-columns: 3fr var(--gutter-size) 1fr; /* left 75% / right 25% */
+  grid-template-rows: 3fr var(--gutter-size) 2fr; /* right column: 60% sidebar / 40% devices */
+  gap: 0;
+  padding: 12px;
+}
+
+.graphPane {
+  min-width: 0;
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sidebarPane {
+  min-width: 0;
+  grid-column: 3;
+  grid-row: 1;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+}
+
+.gutter {
+  background: transparent;
+  border-radius: 12px;
+  position: relative;
+  touch-action: none;
+}
+
+.gutter.vertical {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  cursor: col-resize;
+}
+
+.gutter.horizontal {
+  grid-column: 3;
+  grid-row: 2;
+  cursor: row-resize;
+}
+
+.gutter::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  transition:
+    width 120ms ease,
+    height 120ms ease,
+    background 120ms ease,
+    transform 120ms ease;
+}
+
+.gutter.vertical::after {
+  top: 0;
+  bottom: 0;
+  width: 0.5px;
+  height: auto;
+  transform: translateX(-50%) scaleX(0.5);
+}
+
+.gutter.horizontal::after {
+  left: 0;
+  right: 0;
+  width: auto;
+  height: 0.5px;
+  transform: translateY(-50%) scaleY(0.5);
+}
+
+.gutter:hover::after,
+.gutter.active::after {
+  background: rgba(96, 165, 250, 0.95);
+}
+
+.gutter.vertical:hover::after,
+.gutter.vertical.active::after {
+  width: 3px;
+  transform: translateX(-50%);
+}
+
+.gutter.horizontal:hover::after,
+.gutter.horizontal.active::after {
+  height: 3px;
+  transform: translateY(-50%);
+}
+
+body.isResizing {
+  user-select: none;
+  cursor: col-resize;
+}
+
+body.isResizing .gutter.horizontal {
+  cursor: row-resize;
+}

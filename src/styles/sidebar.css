@@ -1,0 +1,213 @@
+.sidebarContent {
+  padding: 14px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebarHeader {
+  flex: 0 0 auto;
+}
+
+.sidebarListArea {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.sidebarFooter {
+  flex: 0 0 auto;
+}
+
+.sidebarFooterActions {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.sidebarFooterActions .sidebarButton {
+  width: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 40px;
+}
+
+.sidebarMergeButton,
+.sidebarPruneButton {
+  border-radius: 10px;
+  flex: 0 0 auto;
+}
+
+.sidebarTitleRow {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.sidebarSectionTitle {
+  font-weight: 600;
+  margin-bottom: 0px;
+}
+
+.sidebarSectionCount {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.70);
+}
+
+.selectionList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0px;
+}
+
+.selectionItem {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.selectionItem:not(:first-child) {
+  border-top: none;
+}
+
+.selectionItem:first-child {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.selectionItem:last-child {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.selectionName {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.selectionPath {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.selectionItem.greyed .selectionName,
+.selectionItem.greyed .selectionPath {
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.selectionItem.greyed {
+  opacity: 0.82;
+}
+
+.selectionItem.greyed .cardMeta,
+.selectionItem.greyed .chevronIcon {
+  color: rgba(148, 163, 184, 0.85);
+}
+
+.sidebarCard {
+  border: 1px solid var(--border);
+  background: rgba(12, 22, 40, 0.55);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.sidebarEmpty {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.sidebarCardTitle {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.sidebarLabel {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.sidebarInput {
+  width: 100%;
+  padding: 10px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  outline: none;
+}
+
+.sidebarSelect {
+  width: 100%;
+  padding: 10px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  outline: none;
+}
+
+.sidebarSelect:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sidebarMeta {
+  margin: 6px 0 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.sidebarMetaLabel {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.sidebarMetaValue {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sidebarInput:focus {
+  border-color: rgba(96, 165, 250, 0.55);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+}
+
+.sidebarButton {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: rgba(96, 165, 250, 0.14);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.sidebarButton:hover {
+  background: rgba(96, 165, 250, 0.22);
+}
+
+.sidebarButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sidebarButton:disabled:hover {
+  background: rgba(96, 165, 250, 0.14);
+}
