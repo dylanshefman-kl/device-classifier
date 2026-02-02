@@ -5,10 +5,12 @@
 }
 
 .graphHeader {
+  --graphHeaderH: 40px;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: flex-start;
-  padding: 12px 14px;
+  height: var(--graphHeaderH);
+  padding: 0px 0px 0px 0px;
   border-bottom: 1px solid var(--border);
   background: rgba(15, 26, 46, 0.6);
 }
@@ -19,6 +21,57 @@
   align-items: center;
   flex: 1 1 auto;
   min-width: 0;
+  height: 100%;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.graphHelpCorner {
+  width: var(--graphHeaderH);
+  height: var(--graphHeaderH);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  border-radius: 12px 0px 0px 0px;
+  flex: 0 0 auto;
+  margin-right: 6px; /* slightly bigger than the 10px control gap */
+}
+
+.graphPrimaryGroup {
+  display: inline-flex;
+  align-items: stretch;
+  height: 100%;
+  gap: 0px;
+  margin-left: 6px;
+}
+
+.graphHeaderSegment {
+  height: 100%;
+  border-radius: 0px;
+  margin: 0;
+}
+
+.graphPrimaryGroup > .graphHeaderSegment:not(:first-child) {
+  margin-left: 0px;
+  border-left: none;
+}
+
+.graphHelpCorner:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.graphHelpCorner:active {
+  transform: translateY(1px);
+}
+
+.graphHelpCorner:focus-visible {
+  outline: 2px solid rgba(60, 140, 255, 0.9);
+  outline-offset: 2px;
 }
 
 .graphIconButton {
@@ -294,7 +347,17 @@
   margin-left: auto;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 0px;
+  height: 100%;
+}
+
+.graphButton.graphExportCorner {
+  height: 100%;
+  border-radius: 0px;
+  border-top-right-radius: 12px;
+  width: var(--graphHeaderH);
+  padding: 0px;
+  border-left: 1px solid rgba(255, 255, 255, 0.10);
 }
 
 .graphButton {
@@ -333,10 +396,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 12px;
+  padding: 0px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(96, 165, 250, 0.35);
-  background: rgba(96, 165, 250, 0.14);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text);
   cursor: pointer;
   font-size: 13px;
@@ -344,7 +407,7 @@
 }
 
 .fileButton:hover {
-  background: rgba(96, 165, 250, 0.22);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .fileButton input {
@@ -354,12 +417,24 @@
 .graphSelect {
   min-width: 220px;
   max-width: 420px;
-  padding: 10px 10px;
+  padding: 0px 12px;
   border-radius: 10px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.04);
   color: var(--text);
   outline: none;
+}
+
+.graphPrimaryGroup .graphSelect {
+  height: 100%;
+}
+
+.graphPrimaryGroup .fileButton {
+  height: 100%;
+}
+
+.graphPrimaryGroup .graphHeaderSegment {
+  border-radius: 0px;
 }
 
 .graphSelect:disabled {

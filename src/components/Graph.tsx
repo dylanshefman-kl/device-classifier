@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
-import { ChevronDown, ChevronRight, Info, Plus } from 'lucide-react'
+import { ChevronDown, ChevronRight, Download, Info, Plus } from 'lucide-react'
 import type { FileTreeNode } from '../lib/fileTree'
 import type { PointRecord } from '../lib/fileTree'
 import { isDownstreamOfAnyFolderPath } from '../lib/fileTree'
@@ -814,61 +814,65 @@ export default function Graph({
     <div ref={wrapperRef} className="graphWrapper">
       <div className="graphHeader">
         <div className="graphControls">
-          <label className="fileButton">
-            Choose CSV
-            <input
-              type="file"
-              accept=".csv,text/csv"
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file) onUploadCsv(file)
-                e.currentTarget.value = ''
-              }}
-            />
-          </label>
+          <button className="graphHelpCorner" type="button" onClick={onOpenHelp} aria-label="Open instructions">
+            <Info size={18} />
+          </button>
 
-          <select
-            className="graphSelect"
-            value={selectedColumn}
-            disabled={!columns.length}
-            onChange={(e) => onSelectColumn(e.target.value)}
-          >
-            <option value="" disabled>
-              {columns.length ? 'Select column…' : 'Upload CSV first'}
-            </option>
-            {columns.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+          <div className="graphPrimaryGroup" aria-label="Upload and column selection">
+            <label className="fileButton graphHeaderSegment">
+              Choose CSV
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) onUploadCsv(file)
+                  e.currentTarget.value = ''
+                }}
+              />
+            </label>
 
-          <select
-            className="graphSelect"
-            value={selectedTypeColumn}
-            disabled={!columns.length || !selectedColumn}
-            onChange={(e) => onSelectTypeColumn(e.target.value)}
-          >
-            <option value="">No type column</option>
-            {columns.map((c) => (
-              <option key={c} value={c}>
-                {c}
+            <select
+              className="graphSelect graphHeaderSegment"
+              value={selectedColumn}
+              disabled={!columns.length}
+              onChange={(e) => onSelectColumn(e.target.value)}
+            >
+              <option value="" disabled>
+                {columns.length ? 'Select column…' : 'Upload CSV first'}
               </option>
-            ))}
-          </select>
+              {columns.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="graphSelect graphHeaderSegment"
+              value={selectedTypeColumn}
+              disabled={!columns.length || !selectedColumn}
+              onChange={(e) => onSelectTypeColumn(e.target.value)}
+            >
+              <option value="">No type column</option>
+              {columns.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className="graphButtonGroupRight">
-            <button className="graphIconButton" type="button" onClick={onOpenHelp} aria-label="Open instructions">
-              <Info size={18} />
-            </button>
             <button
-              className="graphButton success"
+              className="graphButton success graphExportCorner"
               type="button"
               onClick={onExportCsv}
               disabled={exportDisabled}
+              aria-label={exportDisabled ? 'Export CSV (disabled)' : 'Export CSV'}
               title={exportDisabled ? 'Upload a CSV and select a path column first' : 'Export CSV with device_name column'}
             >
-              Export
+              <Download size={18} aria-hidden />
             </button>
           </div>
         </div>
