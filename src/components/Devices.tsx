@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Merge, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Merge, Trash2 } from 'lucide-react'
 import type { PointRecord } from '../lib/fileTree'
 import { listLeafPointsUnderFolderByType } from '../lib/fileTree'
 
@@ -39,11 +39,15 @@ export default function Devices({
   const [openKeys, setOpenKeys] = useState<string[]>([])
   const [collapsedTypeKeys, setCollapsedTypeKeys] = useState<string[]>([])
   const [checkedKeys, setCheckedKeys] = useState<string[]>([])
+  const [filterText, setFilterText] = useState<string>('')
+  const [sortKey, setSortKey] = useState<'name' | 'path' | 'points'>('name')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [editingPath, setEditingPath] = useState<string | null>(null)
   const [draftName, setDraftName] = useState<string>('')
   const selectAllRef = useRef<HTMLInputElement | null>(null)
   const nameInputRef = useRef<HTMLInputElement | null>(null)
   const commitGuardRef = useRef(false)
+  const collator = useMemo(() => new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' }), [])
   const sortedPaths = useMemo(() => [...devicePaths].sort((a, b) => a.localeCompare(b)), [devicePaths])
   const displayPath = (p: string) => (p.startsWith('root/') ? p.slice('root/'.length) : p)
 
@@ -179,14 +183,76 @@ export default function Devices({
     onRemoveDevices(unique)
   }
 
-  const checkedCount = useMemo(() => {
-    let c = 0
-    for (const it of items) if (checkedSet.has(keyFor(it))) c++
-    return c
-  }, [checkedSet, items])
+  const visibleItems = useMemo(() => {
+    const q = filterText.trim().toLowerCase()
 
-  const allChecked = items.length > 0 && checkedCount === items.length
-  const someChecked = checkedCount > 0 && !allChecked
+    const matches = (it: DeviceListItem): boolean => {
+      if (!q) return true
+      const members = memberPathsForItem(it)
+      const name = it.kind === 'merged' ? it.name : displayDeviceName(it.path)
+      const pathText = it.kind === 'merged' ? members.map(displayPath).join(' ') : displayPath(it.path)
+      const hay = `${name} ${pathText}`.toLowerCase()
+      return hay.includes(q)
+    }
+
+    const nameForSort = (it: DeviceListItem): string => (it.kind === 'merged' ? it.name : displayDeviceName(it.path))
+    const pathForSort = (it: DeviceListItem): string => {
+      const members = memberPathsForItem(it)
+      return it.kind === 'merged' ? members.map(displayPath).join(' ') : displayPath(it.path)
+    }
+
+    const pointCountCache = new Map<string, number>()
+    const pointsForSort = (it: DeviceListItem): number => {
+      const k = keyFor(it)
+      const cached = pointCountCache.get(k)
+      if (cached != null) return cached
+
+      const memberFolders = memberPathsForItem(it)
+      const union = new Set<string>()
+      for (const f of memberFolders) {
+        const groups = listLeafPointsUnderFolderByType(f, points)
+        for (const g of groups) for (const pt of g.points) union.add(pt)
+      }
+
+      const c = union.size
+      pointCountCache.set(k, c)
+      return c
+    }
+
+    const dir = sortDir === 'asc' ? 1 : -1
+
+    const compare = (a: DeviceListItem, b: DeviceListItem): number => {
+      if (sortKey === 'points') {
+        const d = pointsForSort(a) - pointsForSort(b)
+        if (d !== 0) return dir * d
+        return dir * collator.compare(nameForSort(a), nameForSort(b))
+      }
+
+      if (sortKey === 'path') {
+        const d = collator.compare(pathForSort(a), pathForSort(b))
+        if (d !== 0) return dir * d
+        return dir * collator.compare(nameForSort(a), nameForSort(b))
+      }
+
+      const d = collator.compare(nameForSort(a), nameForSort(b))
+      if (d !== 0) return dir * d
+      return dir * collator.compare(pathForSort(a), pathForSort(b))
+    }
+
+    return items
+      .filter(matches)
+      .slice()
+      .sort(compare)
+  }, [collator, displayDeviceName, filterText, items, points, sortDir, sortKey])
+
+  const visibleCheckedCount = useMemo(() => {
+    let c = 0
+    for (const it of visibleItems) if (checkedSet.has(keyFor(it))) c++
+    return c
+  }, [checkedSet, visibleItems])
+
+  const allChecked = visibleItems.length > 0 && visibleCheckedCount === visibleItems.length
+  const someChecked = visibleCheckedCount > 0 && !allChecked
 
   useEffect(() => {
     if (!selectAllRef.current) return
@@ -194,8 +260,16 @@ export default function Devices({
   }, [someChecked])
 
   const toggleSelectAll = () => {
-    if (items.length === 0) return
-    setCheckedKeys(allChecked ? [] : items.map(keyFor))
+    if (visibleItems.length === 0) return
+    setCheckedKeys((prev) => {
+      const s = new Set(prev)
+      if (allChecked) {
+        for (const it of visibleItems) s.delete(keyFor(it))
+      } else {
+        for (const it of visibleItems) s.add(keyFor(it))
+      }
+      return Array.from(s)
+    })
   }
 
   const mergeSelected = () => {
@@ -281,6 +355,8 @@ export default function Devices({
       <div className="devicesListArea">
         {items.length === 0 ? (
           <div className="sidebarEmpty">Select folders and click “Mark as device” in the sidebar.</div>
+        ) : visibleItems.length === 0 ? (
+          <div className="sidebarEmpty">No devices match your search.</div>
         ) : (
           <ul className="deviceList">
             <li className="deviceItem deviceSelectAllItem">
@@ -295,13 +371,48 @@ export default function Devices({
                     aria-label={allChecked ? 'Deselect all devices' : 'Select all devices'}
                   />
                 </label>
-                <span className="selectAllMeta" aria-label={`${checkedCount} selected out of ${items.length}`}>
-                  {checkedCount}/{items.length}
+                <span className="selectAllMeta" aria-label={`${visibleCheckedCount} selected out of ${visibleItems.length}`}>
+                  {visibleCheckedCount}/{visibleItems.length}
                 </span>
+
+                <div className="selectAllRight" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+                  <input
+                    className="selectAllSearch"
+                    type="search"
+                    value={filterText}
+                    onChange={(e) => setFilterText(e.target.value)}
+                    placeholder="Search…"
+                    aria-label="Search devices"
+                  />
+
+                  <div className="selectAllSortGroup" aria-label="Sort devices">
+                    <select
+                      className="selectAllSortKey"
+                      value={sortKey}
+                      onChange={(e) => setSortKey(e.target.value as any)}
+                      aria-label="Sort devices by"
+                      title="Sort by"
+                    >
+                      <option value="name">Name</option>
+                      <option value="path">Path</option>
+                      <option value="points">Points</option>
+                    </select>
+
+                    <button
+                      className="selectAllSortDir"
+                      type="button"
+                      onClick={() => setSortDir((v) => (v === 'asc' ? 'desc' : 'asc'))}
+                      aria-label={sortDir === 'asc' ? 'Sort descending' : 'Sort ascending'}
+                      title={sortDir === 'asc' ? 'Descending' : 'Ascending'}
+                    >
+                      {sortDir === 'asc' ? <ArrowUp size={14} aria-hidden /> : <ArrowDown size={14} aria-hidden />}
+                    </button>
+                  </div>
+                </div>
               </div>
             </li>
 
-            {items.map((it) => {
+            {visibleItems.map((it) => {
               const k = keyFor(it)
               const isOpen = openSet.has(k)
               const isChecked = checkedSet.has(k)

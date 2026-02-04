@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Merge, Scissors } from 'lucide-react'
+import { Merge, FolderX } from 'lucide-react'
 import type { PointRecord } from '../lib/fileTree'
 import { listLeafPointsUnderFolderByType } from '../lib/fileTree'
 import { isDownstreamOfAnyFolderPath } from '../lib/fileTree'
@@ -292,7 +292,7 @@ export default function Sidebar({
                   : 'Hide the selected folders from the graph (they will export with device_name = -)'
               }
             >
-              <Scissors size={18} aria-hidden />
+              <FolderX size={18} aria-hidden />
             </button>
           </div>
         </div>

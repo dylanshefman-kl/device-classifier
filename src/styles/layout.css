@@ -71,7 +71,7 @@
 }
 
 .gutter.horizontal::after {
-  left: 0;
+  left: calc(-1 * var(--gutter-size) / 2);
   right: 0;
   width: auto;
   height: 0.5px;

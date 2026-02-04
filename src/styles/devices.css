@@ -279,14 +279,100 @@
   padding: 0;
 }
 
+.selectAllRight {
+  margin-left: auto;
+  padding-right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+
+.selectAllSortGroup {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.selectAllSortKey {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: none;
+  min-width: 86px;
+  height: 28px;
+  border-top-left-radius: 9px;
+  border-bottom-left-radius: 9px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 12px;
+  padding: 0 10px;
+}
+
+.selectAllSortDir {
+  height: 28px;
+  width: 32px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 9px;
+  border-bottom-right-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-left: none;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.86);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.selectAllSortDir:hover,
+.selectAllSortKey:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.selectAllSortGroup:focus-within {
+  outline: 2px solid rgba(60, 140, 255, 0.9);
+  outline-offset: 2px;
+  border-radius: 9px;
+}
+
+.selectAllSortKey:focus-visible,
+.selectAllSortDir:focus-visible {
+  outline: none;
+}
+
+.selectAllSearch {
+  height: 28px;
+  width: 150px;
+  min-width: 0;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.90);
+  font-size: 12px;
+  padding: 0 10px;
+}
+
+.selectAllSearch::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.selectAllSearch:focus-visible {
+  outline: 2px solid rgba(60, 140, 255, 0.9);
+  outline-offset: 2px;
+}
+
 .deviceSelectAllItem .deviceSelect {
   height: 42px;
 }
 
 .selectAllMeta {
   flex: 0 0 auto;
-  margin-left: auto;
-  padding-right: 10px;
+  margin-left: 0;
   color: rgba(255, 255, 255, 0.65);
   font-size: 12px;
 }

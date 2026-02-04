@@ -26,28 +26,12 @@
   padding-right: 0px;
 }
 
-.graphHelpCorner {
-  width: var(--graphHeaderH);
-  height: var(--graphHeaderH);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-right: 1px solid rgba(255, 255, 255, 0.10);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.92);
-  cursor: pointer;
-  border-radius: 12px 0px 0px 0px;
-  flex: 0 0 auto;
-  margin-right: 6px; /* slightly bigger than the 10px control gap */
-}
-
 .graphPrimaryGroup {
   display: inline-flex;
   align-items: stretch;
   height: 100%;
   gap: 0px;
-  margin-left: 6px;
+  margin-left: 0px;
 }
 
 .graphHeaderSegment {
@@ -183,6 +167,33 @@
   display: block;
   margin-top: 6px;
   color: rgba(255, 255, 255, 0.72);
+}
+
+.helpToolNote {
+  margin-top: 10px;
+}
+
+.helpTwoCol {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.helpCol {
+  min-width: 0;
+}
+
+.helpColTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 2px;
+}
+
+@media (max-width: 560px) {
+  .helpTwoCol {
+    grid-template-columns: 1fr;
+  }
 }
 
 .helpHero {
@@ -351,10 +362,17 @@
   height: 100%;
 }
 
+.graphButton.graphInfoCorner {
+  height: 100%;
+  width: var(--graphHeaderH);
+  padding: 0px;
+  border-radius: 0px;
+  border-left: 1px solid rgba(255, 255, 255, 0.10);
+}
+
 .graphButton.graphExportCorner {
   height: 100%;
   border-radius: 0px;
-  border-top-right-radius: 12px;
   width: var(--graphHeaderH);
   padding: 0px;
   border-left: 1px solid rgba(255, 255, 255, 0.10);
@@ -410,6 +428,20 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+/* Round only the top-left corner of the leftmost config control (Choose CSV) */
+.graphPrimaryGroup > .graphHeaderSegment:first-child {
+  border-top-left-radius: 12px;
+}
+
+.graphSubmitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.graphSubmitButton:disabled:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .fileButton input {
   display: none;
 }
@@ -440,6 +472,31 @@
 .graphSelect:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.graphLoadedNamePlain {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  padding: 0px 10px 0px 0px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 13px;
+  font-weight: 650;
+  user-select: none;
+  max-width: 420px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.graphRestartButton {
+  white-space: nowrap;
+  border-color: rgba(248, 113, 113, 0.55);
+  background: rgba(248, 113, 113, 0.18);
+}
+
+.graphRestartButton:hover {
+  background: rgba(248, 113, 113, 0.26);
 }
 
 .graphSvg {
@@ -647,6 +704,21 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.miniProgress {
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.20);
+  overflow: hidden;
+}
+
+.miniProgressFill {
+  height: 100%;
+  width: 0%;
+  background: rgba(52, 211, 153, 0.75);
+  box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.22) inset;
 }
 
 .miniButton {

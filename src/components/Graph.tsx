@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
-import { ChevronDown, ChevronRight, Download, Info, Plus } from 'lucide-react'
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Download, Info, FolderGit2 } from 'lucide-react'
 import type { FileTreeNode } from '../lib/fileTree'
 import type { PointRecord } from '../lib/fileTree'
 import { isDownstreamOfAnyFolderPath } from '../lib/fileTree'
@@ -30,6 +30,11 @@ type Props = {
   onUploadCsv: (file: File) => void | Promise<void>
   onSelectColumn: (column: string) => void
   onSelectTypeColumn: (column: string) => void
+  onSubmitCsvSelection: () => void
+  submitDisabled: boolean
+  isGraphLoaded: boolean
+  loadedFileBaseName: string
+  onRestartCsv: () => void
   onExportCsv: () => void
   exportDisabled: boolean
   onOpenHelp: () => void
@@ -57,6 +62,11 @@ export default function Graph({
   onUploadCsv,
   onSelectColumn,
   onSelectTypeColumn,
+  onSubmitCsvSelection,
+  submitDisabled,
+  isGraphLoaded,
+  loadedFileBaseName,
+  onRestartCsv,
   onExportCsv,
   exportDisabled,
   onOpenHelp,
@@ -74,10 +84,13 @@ export default function Graph({
   const [hiddenChecked, setHiddenChecked] = useState<string[]>([])
   const [hiddenExpandedKeys, setHiddenExpandedKeys] = useState<string[]>([])
   const [hiddenCollapsedTypeKeys, setHiddenCollapsedTypeKeys] = useState<string[]>([])
+  const [hiddenFilterText, setHiddenFilterText] = useState<string>('')
+  const [hiddenSortKey, setHiddenSortKey] = useState<'name' | 'path' | 'points'>('name')
+  const [hiddenSortDir, setHiddenSortDir] = useState<'asc' | 'desc'>('asc')
+  const collator = useMemo(() => new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' }), [])
 
-  const unassignedPct = totalPointsCount
-    ? Math.round((unassignedPointsCount / totalPointsCount) * 1000) / 10
-    : 0
+  const assignedPointsCount = Math.max(0, totalPointsCount - unassignedPointsCount)
+  const assignedRatio = totalPointsCount ? assignedPointsCount / totalPointsCount : 0
 
   const sortedHidden = useMemo(() => [...hiddenFolderPaths].sort((a, b) => a.localeCompare(b)), [hiddenFolderPaths])
   const hiddenCheckedSet = useMemo(() => new Set(hiddenChecked), [hiddenChecked])
@@ -85,6 +98,60 @@ export default function Graph({
   const hiddenTypeCollapsedSet = useMemo(() => new Set(hiddenCollapsedTypeKeys), [hiddenCollapsedTypeKeys])
   const displayPath = (p: string) => (p.startsWith('root/') ? p.slice('root/'.length) : p)
   const hiddenTypeKey = (parentPath: string, type: string) => `${parentPath}::${type}`
+
+  const visibleHidden = useMemo(() => {
+    const q = hiddenFilterText.trim().toLowerCase()
+    const dir = hiddenSortDir === 'asc' ? 1 : -1
+
+    const nameFor = (p: string): string => {
+      const shown = displayPath(p)
+      const raw = shown.split('/').pop() ?? shown
+      return decodeStandardName(raw)
+    }
+
+    const pathFor = (p: string): string => displayPath(p)
+
+    const pointCountCache = new Map<string, number>()
+    const pointsFor = (p: string): number => {
+      const cached = pointCountCache.get(p)
+      if (cached != null) return cached
+
+      const groups = listLeafPointsUnderFolderByType(p, points)
+      const union = new Set<string>()
+      for (const g of groups) for (const pt of g.points) union.add(pt)
+      const c = union.size
+      pointCountCache.set(p, c)
+      return c
+    }
+
+    const compare = (a: string, b: string): number => {
+      if (hiddenSortKey === 'points') {
+        const d = pointsFor(a) - pointsFor(b)
+        if (d !== 0) return dir * d
+        return dir * collator.compare(nameFor(a), nameFor(b))
+      }
+
+      if (hiddenSortKey === 'path') {
+        const d = collator.compare(pathFor(a), pathFor(b))
+        if (d !== 0) return dir * d
+        return dir * collator.compare(nameFor(a), nameFor(b))
+      }
+
+      const d = collator.compare(nameFor(a), nameFor(b))
+      if (d !== 0) return dir * d
+      return dir * collator.compare(pathFor(a), pathFor(b))
+    }
+
+    return sortedHidden
+      .filter((p) => {
+        if (!q) return true
+        const shown = displayPath(p)
+        const name = nameFor(p)
+        return `${name} ${shown}`.toLowerCase().includes(q)
+      })
+      .slice()
+      .sort(compare)
+  }, [collator, displayPath, hiddenFilterText, hiddenSortDir, hiddenSortKey, points, sortedHidden])
 
   useEffect(() => {
     if (!svgRef.current || !miniRef.current || !wrapperRef.current) return
@@ -794,12 +861,26 @@ export default function Graph({
   }
 
   const hiddenCheckedCount = hiddenChecked.length
-  const hiddenAllChecked = sortedHidden.length > 0 && hiddenCheckedCount === sortedHidden.length
-  const hiddenSomeChecked = hiddenCheckedCount > 0 && !hiddenAllChecked
+  const visibleHiddenCheckedCount = useMemo(() => {
+    let c = 0
+    for (const p of visibleHidden) if (hiddenCheckedSet.has(p)) c++
+    return c
+  }, [hiddenCheckedSet, visibleHidden])
+
+  const hiddenAllChecked = visibleHidden.length > 0 && visibleHiddenCheckedCount === visibleHidden.length
+  const hiddenSomeChecked = visibleHiddenCheckedCount > 0 && !hiddenAllChecked
 
   const toggleHiddenSelectAll = () => {
-    if (!sortedHidden.length) return
-    setHiddenChecked(hiddenAllChecked ? [] : [...sortedHidden])
+    if (!visibleHidden.length) return
+    setHiddenChecked((prev) => {
+      const s = new Set(prev)
+      if (hiddenAllChecked) {
+        for (const p of visibleHidden) s.delete(p)
+      } else {
+        for (const p of visibleHidden) s.add(p)
+      }
+      return Array.from(s)
+    })
   }
 
   const unhideChecked = () => {
@@ -814,63 +895,96 @@ export default function Graph({
     <div ref={wrapperRef} className="graphWrapper">
       <div className="graphHeader">
         <div className="graphControls">
-          <button className="graphHelpCorner" type="button" onClick={onOpenHelp} aria-label="Open instructions">
-            <Info size={18} />
-          </button>
+          {!isGraphLoaded ? (
+            <div className="graphPrimaryGroup" aria-label="Upload and column selection">
+              <label className="fileButton graphHeaderSegment">
+                Choose CSV
+                <input
+                  type="file"
+                  accept=".csv,text/csv"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) onUploadCsv(file)
+                    e.currentTarget.value = ''
+                  }}
+                />
+              </label>
 
-          <div className="graphPrimaryGroup" aria-label="Upload and column selection">
-            <label className="fileButton graphHeaderSegment">
-              Choose CSV
-              <input
-                type="file"
-                accept=".csv,text/csv"
-                onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  if (file) onUploadCsv(file)
-                  e.currentTarget.value = ''
-                }}
-              />
-            </label>
-
-            <select
-              className="graphSelect graphHeaderSegment"
-              value={selectedColumn}
-              disabled={!columns.length}
-              onChange={(e) => onSelectColumn(e.target.value)}
-            >
-              <option value="" disabled>
-                {columns.length ? 'Select column…' : 'Upload CSV first'}
-              </option>
-              {columns.map((c) => (
-                <option key={c} value={c}>
-                  {c}
+              <select
+                className="graphSelect graphHeaderSegment"
+                value={selectedColumn}
+                disabled={!columns.length}
+                onChange={(e) => onSelectColumn(e.target.value)}
+              >
+                <option value="" disabled>
+                  {columns.length ? 'Select column…' : 'Upload CSV first'}
                 </option>
-              ))}
-            </select>
+                {columns.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
 
-            <select
-              className="graphSelect graphHeaderSegment"
-              value={selectedTypeColumn}
-              disabled={!columns.length || !selectedColumn}
-              onChange={(e) => onSelectTypeColumn(e.target.value)}
-            >
-              <option value="">No type column</option>
-              {columns.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
+              <select
+                className="graphSelect graphHeaderSegment"
+                value={selectedTypeColumn}
+                disabled={!columns.length || !selectedColumn}
+                onChange={(e) => onSelectTypeColumn(e.target.value)}
+              >
+                <option value="">No type column</option>
+                {columns.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                className="fileButton graphHeaderSegment graphSubmitButton"
+                type="button"
+                onClick={onSubmitCsvSelection}
+                disabled={submitDisabled}
+                aria-label={submitDisabled ? 'Submit (disabled)' : 'Submit CSV and column selection'}
+                title={submitDisabled ? 'Upload a CSV and select a path column first' : 'Submit to populate the graph'}
+              >
+                Submit
+              </button>
+            </div>
+          ) : (
+            <div className="graphPrimaryGroup" aria-label="Loaded CSV">
+              <div className="graphLoadedNamePlain" title={loadedFileBaseName || 'CSV loaded'}>
+                {loadedFileBaseName || 'CSV loaded'}
+              </div>
+              <button
+                className="fileButton graphHeaderSegment graphRestartButton"
+                type="button"
+                onClick={onRestartCsv}
+                aria-label="Restart and choose a new CSV"
+                title="Restart and choose a new CSV"
+              >
+                Restart
+              </button>
+            </div>
+          )}
 
           <div className="graphButtonGroupRight">
+            <button
+              className="graphButton graphInfoCorner"
+              type="button"
+              onClick={onOpenHelp}
+              aria-label="Open instructions"
+              title="Instructions"
+            >
+              <Info size={18} aria-hidden />
+            </button>
             <button
               className="graphButton success graphExportCorner"
               type="button"
               onClick={onExportCsv}
               disabled={exportDisabled}
               aria-label={exportDisabled ? 'Export CSV (disabled)' : 'Export CSV'}
-              title={exportDisabled ? 'Upload a CSV and select a path column first' : 'Export CSV with device_name column'}
+              title={exportDisabled ? 'Upload a CSV, select a path column, then click Submit first' : 'Export CSV with device_name column'}
             >
               <Download size={18} aria-hidden />
             </button>
@@ -895,9 +1009,19 @@ export default function Graph({
 
                 <div className="miniStatBlock">
                   <div className="miniStatValue">
-                    {unassignedPointsCount}/{totalPointsCount} ({unassignedPct}%)
+                    {assignedPointsCount}/{totalPointsCount}
                   </div>
-                  <div className="miniStatLabel">Unassigned</div>
+                  <div
+                    className="miniProgress"
+                    role="progressbar"
+                    aria-label="Assigned progress"
+                    aria-valuemin={0}
+                    aria-valuemax={totalPointsCount || 1}
+                    aria-valuenow={assignedPointsCount}
+                  >
+                    <div className="miniProgressFill" style={{ width: `${Math.round(assignedRatio * 100)}%` }} />
+                  </div>
+                  <div className="miniStatLabel">Assigned</div>
                 </div>
               </>
             ) : null}
@@ -962,7 +1086,7 @@ export default function Graph({
                     : 'Select hidden nodes to unhide'
                 }
               >
-                <Plus size={16} aria-hidden />
+                <FolderGit2 size={16} aria-hidden />
               </button>
             </div>
           </div>
@@ -971,6 +1095,10 @@ export default function Graph({
             sortedHidden.length === 0 ? (
               <div className="hiddenOverlayEmpty" aria-label="Hidden nodes list">
                 No hidden folders yet.
+              </div>
+            ) : visibleHidden.length === 0 ? (
+              <div className="hiddenOverlayEmpty" aria-label="Hidden nodes list">
+                No hidden folders match your search.
               </div>
             ) : (
               <ul className="deviceList hiddenOverlayBody" aria-label="Hidden nodes list">
@@ -993,13 +1121,48 @@ export default function Graph({
                         aria-label={hiddenAllChecked ? 'Deselect all hidden nodes' : 'Select all hidden nodes'}
                       />
                     </label>
-                    <span className="selectAllMeta" aria-label={`${hiddenCheckedCount} selected out of ${sortedHidden.length}`}>
-                      {hiddenCheckedCount}/{sortedHidden.length}
+                    <span className="selectAllMeta" aria-label={`${visibleHiddenCheckedCount} selected out of ${visibleHidden.length}`}>
+                      {visibleHiddenCheckedCount}/{visibleHidden.length}
                     </span>
+
+                    <div className="selectAllRight" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+                      <input
+                        className="selectAllSearch"
+                        type="search"
+                        value={hiddenFilterText}
+                        onChange={(e) => setHiddenFilterText(e.target.value)}
+                        placeholder="Search…"
+                        aria-label="Search hidden nodes"
+                      />
+
+                      <div className="selectAllSortGroup" aria-label="Sort hidden nodes">
+                        <select
+                          className="selectAllSortKey"
+                          value={hiddenSortKey}
+                          onChange={(e) => setHiddenSortKey(e.target.value as any)}
+                          aria-label="Sort hidden nodes by"
+                          title="Sort by"
+                        >
+                          <option value="name">Name</option>
+                          <option value="path">Path</option>
+                          <option value="points">Points</option>
+                        </select>
+
+                        <button
+                          className="selectAllSortDir"
+                          type="button"
+                          onClick={() => setHiddenSortDir((v) => (v === 'asc' ? 'desc' : 'asc'))}
+                          aria-label={hiddenSortDir === 'asc' ? 'Sort descending' : 'Sort ascending'}
+                          title={hiddenSortDir === 'asc' ? 'Descending' : 'Ascending'}
+                        >
+                          {hiddenSortDir === 'asc' ? <ArrowUp size={14} aria-hidden /> : <ArrowDown size={14} aria-hidden />}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </li>
 
-                {sortedHidden.map((p) => {
+                {visibleHidden.map((p) => {
                   const isExpanded = hiddenExpandedSet.has(p)
                   const isChecked = hiddenCheckedSet.has(p)
                   const shown = displayPath(p)

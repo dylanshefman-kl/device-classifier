@@ -38,9 +38,11 @@ type PendingMerge = {
 
 export default function App() {
   const [csvText, setCsvText] = useState<string | null>(null)
+  const [csvFileBaseName, setCsvFileBaseName] = useState<string>('')
   const [columns, setColumns] = useState<string[]>([])
   const [selectedColumn, setSelectedColumn] = useState<string>('')
   const [selectedTypeColumn, setSelectedTypeColumn] = useState<string>('')
+  const [submittedColumn, setSubmittedColumn] = useState<string>('')
   const [paths, setPaths] = useState<string[]>([])
   const [points, setPoints] = useState<PointRecord[]>([])
   const [devicePaths, setDevicePaths] = useState<string[]>([])
@@ -282,6 +284,9 @@ export default function App() {
     const text = await file.text()
     setCsvText(text)
 
+    const base = file.name.split('.')[0]
+    setCsvFileBaseName(base && base.trim().length ? base.trim() : file.name)
+
     const rows = d3.csvParse(text)
     const cols = rows.columns ?? []
     setColumns(cols)
@@ -289,11 +294,30 @@ export default function App() {
     // Reset selection until user chooses.
     setSelectedColumn('')
     setSelectedTypeColumn('')
+    setSubmittedColumn('')
     setPaths([])
     setPoints([])
     setDevicePaths([])
     setSelectedPaths([])
     setHiddenFolderPaths([])
+  }, [])
+
+  const restartCsv = useCallback(() => {
+    setCsvText(null)
+    setCsvFileBaseName('')
+    setColumns([])
+    setSelectedColumn('')
+    setSelectedTypeColumn('')
+    setSubmittedColumn('')
+    setPaths([])
+    setPoints([])
+    setDevicePaths([])
+    setSelectedPaths([])
+    setHiddenFolderPaths([])
+    setPendingConflict(null)
+    setOpenReassignGroups({})
+    setPendingMerge(null)
+    setMergeName('')
   }, [])
 
   const parsePointsFromCsv = useCallback(
@@ -323,39 +347,42 @@ export default function App() {
   const onSelectColumn = useCallback(
     (col: string) => {
       setSelectedColumn(col)
-      if (!csvText || !col) {
-        setPaths([])
-        setPoints([])
-        setDevicePaths([])
-        setSelectedPaths([])
-        setHiddenFolderPaths([])
-        return
-      }
-
-      const parsed = parsePointsFromCsv(csvText, col, selectedTypeColumn)
-      setPaths(parsed.paths)
-      setPoints(parsed.points)
+      // Changing draft selection invalidates the currently submitted dataset.
+      setSubmittedColumn('')
+      setPaths([])
+      setPoints([])
       setDevicePaths([])
       setSelectedPaths([])
       setHiddenFolderPaths([])
     },
-    [csvText, parsePointsFromCsv, selectedTypeColumn],
+    [],
   )
 
   const onSelectTypeColumn = useCallback(
     (col: string) => {
       setSelectedTypeColumn(col)
-      if (!csvText || !selectedColumn) {
-        setPoints([])
-        return
-      }
-
-      const parsed = parsePointsFromCsv(csvText, selectedColumn, col)
-      setPaths(parsed.paths)
-      setPoints(parsed.points)
+      // Changing draft selection invalidates the currently submitted dataset.
+      setSubmittedColumn('')
+      setPaths([])
+      setPoints([])
+      setDevicePaths([])
+      setSelectedPaths([])
+      setHiddenFolderPaths([])
     },
-    [csvText, parsePointsFromCsv, selectedColumn],
+    [],
   )
+
+  const onSubmitCsvSelection = useCallback(() => {
+    if (!csvText || !selectedColumn) return
+
+    const parsed = parsePointsFromCsv(csvText, selectedColumn, selectedTypeColumn)
+    setPaths(parsed.paths)
+    setPoints(parsed.points)
+    setDevicePaths([])
+    setSelectedPaths([])
+    setHiddenFolderPaths([])
+    setSubmittedColumn(selectedColumn)
+  }, [csvText, parsePointsFromCsv, selectedColumn, selectedTypeColumn])
 
   const addDevices = useCallback((pathsToAdd: string[]) => {
     if (!pathsToAdd.length) return
@@ -403,6 +430,9 @@ export default function App() {
     let unassigned = 0
     const folderSet = new Set<string>()
     for (const pt of points) {
+      // Hidden points are treated as "done" for progress stats.
+      if (hiddenFolderPaths.length && isAtOrDownstreamOfAnyFolderPath(pt.path, hiddenFolderPaths)) continue
+
       const owner = computeOwnerDevice(pt.path, devicePaths)
       if (owner != null) continue
       unassigned++
@@ -415,7 +445,7 @@ export default function App() {
       unassignedPointsCount: unassigned,
       unassignedFolderPaths: Array.from(folderSet).sort((a, b) => a.localeCompare(b)),
     }
-  }, [computeOwnerDevice, devicePaths, points])
+  }, [computeOwnerDevice, devicePaths, hiddenFolderPaths, points])
 
   const computeReassignmentGroups = useCallback(
     (currentDevices: string[], nextDevices: string[]): ReassignmentGroup[] => {
@@ -579,7 +609,7 @@ export default function App() {
   }, [cancelMergeDevices, mergeName, pendingMerge])
 
   const exportCsvWithDeviceNames = useCallback(() => {
-    if (!csvText || !selectedColumn) return
+    if (!csvText || !submittedColumn) return
 
     const rows = d3.csvParse(csvText)
     const inputColumns = rows.columns ?? []
@@ -588,7 +618,7 @@ export default function App() {
 
     const updated = rows.map((r) => {
       const rec = r as Record<string, string | undefined>
-      const pointPath = (rec[selectedColumn] ?? '').trim()
+      const pointPath = (rec[submittedColumn] ?? '').trim()
       const isHidden =
         pointPath && hiddenFolderPaths.length
           ? isAtOrDownstreamOfAnyFolderPath(pointPath, hiddenFolderPaths)
@@ -609,7 +639,7 @@ export default function App() {
     a.click()
     a.remove()
     URL.revokeObjectURL(url)
-  }, [computeOwnerDevice, csvText, devicePaths, displayDeviceName, hiddenFolderPaths, selectedColumn])
+  }, [computeOwnerDevice, csvText, devicePaths, displayDeviceName, hiddenFolderPaths, submittedColumn])
 
   const pruneSelectedFolders = useCallback(
     (pathsToHide: string[]) => {
@@ -799,7 +829,7 @@ export default function App() {
           }}
           deviceCount={deviceEntityCount}
           selectedPaths={selectedPaths}
-          statsReady={Boolean(selectedColumn)}
+          statsReady={Boolean(submittedColumn)}
           totalPointsCount={unassignedStats.totalPointsCount}
           unassignedPointsCount={unassignedStats.unassignedPointsCount}
           unassignedFolderPaths={unassignedStats.unassignedFolderPaths}
@@ -812,8 +842,13 @@ export default function App() {
           onUploadCsv={onUploadCsv}
           onSelectColumn={onSelectColumn}
           onSelectTypeColumn={onSelectTypeColumn}
+          onSubmitCsvSelection={onSubmitCsvSelection}
+          submitDisabled={!csvText || !selectedColumn}
+          isGraphLoaded={Boolean(submittedColumn)}
+          loadedFileBaseName={csvFileBaseName}
+          onRestartCsv={restartCsv}
           onExportCsv={exportCsvWithDeviceNames}
-          exportDisabled={!csvText || !selectedColumn}
+          exportDisabled={!csvText || !submittedColumn}
           onOpenHelp={() => setIsHelpOpen(true)}
         />
       </main>
@@ -1075,8 +1110,8 @@ export default function App() {
             <div className="modalHeader">
               <div className="modalTitle">How to use this tool</div>
               <div className="modalDescription">
-                Upload a CSV, mark folders as devices, then export the same CSV with a new <span className="kbd">device_name</span>{' '}
-                column.
+                Upload a CSV, classify folders into devices (and merged devices), optionally hide irrelevant subtrees, then export the same CSV
+                with a new <span className="kbd">device_name</span> column.
               </div>
             </div>
 
@@ -1084,18 +1119,31 @@ export default function App() {
               <div className="modalBody">
                 <ol className="helpSteps" aria-label="Steps">
                   <li className="helpStep">
-                    <div className="helpStepTitle">1) Load CSV</div>
+                    <div className="helpStepTitle">1) Load CSV + pick columns</div>
                     <div className="helpStepText">
-                      Upload your CSV, then select the <span className="kbd">slotpath</span> column and your point type column.
+                      Click <span className="kbd">Choose CSV</span>, pick your folder/path column (and optionally a type column), then click{' '}
+                      <span className="kbd">Submit</span> to populate the graph.
                     </div>
                   </li>
                   <li className="helpStep">
-                    <div className="helpStepTitle">2) Select device folders</div>
-                    <div className="helpStepText">Select folders in the graph that represent a device.</div>
+                    <div className="helpStepTitle">2) Select folders in the graph</div>
+                    <div className="helpStepText">
+                      Click folders to build a selection. Your current selection shows up in the <span className="kbd">Selection</span> pane.
+                    </div>
                   </li>
                   <li className="helpStep">
-                    <div className="helpStepTitle">3) Manage devices</div>
-                    <div className="helpStepText">Use checkboxes to batch-delete and the Select-all row for speed.</div>
+                    <div className="helpStepTitle">3) Assign + refine</div>
+                    <div className="helpStepText">
+                      Use <span className="kbd">Mark as device</span> to create device roots. Then use the <span className="kbd">Devices</span>{' '}
+                      pane to rename, merge, or delete devices.
+                    </div>
+                  </li>
+                  <li className="helpStep">
+                    <div className="helpStepTitle">4) Export</div>
+                    <div className="helpStepText">
+                      Click the download button to export your original CSV plus <span className="kbd">device_name</span>. Hidden points export
+                      with <span className="kbd">-</span>.
+                    </div>
                   </li>
                 </ol>
 
@@ -1103,23 +1151,59 @@ export default function App() {
                 <div className="helpTools" aria-label="Helpful tools">
                   <div className="helpTool">
                     <div className="helpToolTitle">Batch select</div>
-                    <br></br>
                     <div className="helpToolText">
-                      <b>Click multi-select:</b>
+                      <div className="helpTwoCol" role="list" aria-label="Batch selection shortcuts">
+                        <div className="helpCol" role="listitem">
+                          <div className="helpColTitle">Click multi-select</div>
+                          <span className="helpToolLine">
+                            Mac: <span className="kbd">Cmd</span>-click
+                          </span>
+                          <span className="helpToolLine">
+                            Windows/Linux: <span className="kbd">Ctrl</span>-click
+                          </span>
+                        </div>
+
+                        <div className="helpCol" role="listitem">
+                          <div className="helpColTitle">Drag multi-select</div>
+                          <span className="helpToolLine">
+                            Mac: <span className="kbd">Cmd</span>-drag (on the background)
+                          </span>
+                          <span className="helpToolLine">
+                            Windows/Linux: <span className="kbd">Ctrl</span>-drag (on the background)
+                          </span>
+                        </div>
+                      </div>
+
+                      <span className="helpToolLine helpToolNote">Lists: use the Select-all row and per-row checkboxes.</span>
+                    </div>
+                  </div>
+
+                  <div className="helpTool">
+                    <div className="helpToolTitle">Devices pane</div>
+                    <div className="helpToolText">
+                      Rename devices (display name only), merge devices into a single combined device, or batch-delete using checkboxes.
+                      Merged devices keep their member roots in the graph but export as one <span className="kbd">device_name</span>.
+                    </div>
+                  </div>
+
+                  <div className="helpTool">
+                    <div className="helpToolTitle">Selection pane actions</div>
+                    <div className="helpToolText">
                       <span className="helpToolLine">
-                        Mac: <span className="kbd">Cmd</span>-click
+                        <b>Merge</b>: combine selected non-device folders into a merged device.
                       </span>
                       <span className="helpToolLine">
-                        Windows/Linux: <span className="kbd">Ctrl</span>-click
+                        <b>Scissors</b>: prune (hide) selected non-device folders from the graph.
                       </span>
-                      <b>Drag multi-select:</b>
-                      <span className="helpToolLine">
-                        Mac: <span className="kbd">Cmd</span>-drag
-                      </span>
-                      <span className="helpToolLine">
-                        Windows/Linux: <span className="kbd">Ctrl</span>-drag
-                      </span>
-                      Devices list: use the Select-all row and per-device checkboxes.
+                    </div>
+                  </div>
+
+                  <div className="helpTool">
+                    <div className="helpToolTitle">Hidden nodes</div>
+                    <div className="helpToolText">
+                      The <span className="kbd">Hidden nodes</span> panel (bottom-right of the graph) lists hidden folders. Select rows and use
+                      <span className="kbd">+</span> to unhide them. Hidden points stay in the export but their <span className="kbd">device_name</span>{' '}
+                      is <span className="kbd">-</span>.
                     </div>
                   </div>
 
@@ -1136,9 +1220,18 @@ export default function App() {
                     <div className="helpToolText">Drag the thin gutter lines to resize panes. Your layout is saved automatically.</div>
                   </div>
 
-                  <div className="helpTool placeholder" aria-disabled="true">
-                    <div className="helpToolTitle">Device merging (coming soon)</div>
-                    <div className="helpToolText">This will let you merge two device folders into one combined device.</div>
+                  <div className="helpTool">
+                    <div className="helpToolTitle">Export rules</div>
+                    <div className="helpToolText">
+                      Export preserves your original CSV rows and adds <span className="kbd">device_name</span>.
+                      <span className="helpToolLine">
+                        If a point is under a merged device, it uses the merged device name.
+                      </span>
+                      <span className="helpToolLine">Otherwise it uses the device’s display name.</span>
+                      <span className="helpToolLine">
+                        Points under hidden folders export with <span className="kbd">-</span>.
+                      </span>
+                    </div>
                   </div>
 
                   <div className="helpTool">
